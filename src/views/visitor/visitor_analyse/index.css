@@ -1,0 +1,49 @@
+.title2{
+  font-size: 30px;
+  font-weight: bold;
+
+}
+.huibianku{
+  width: 300px;
+  height: 20px;
+  margin-top: 10px;
+  background-color: #f5f5f5;
+}
+.jubandiai{
+  font-size: 20px;
+  font-weight: bold;
+}
+.fenjiexain{
+  width: 860px;
+  height: 10px;
+  margin:40px 0px;
+    background: linear-gradient(to bottom, #000000, #ffffff);
+}
+.mulutxt{
+  font-size: 30px;
+  font-weight: bold;
+  margin:30px 0px;
+}
+.linejiane{
+  height: 2px;
+  border: dashed #000 1px;
+  margin:0rpx 5px;
+}
+.baogaos{
+  font-size: 40px;
+  font-weight: bold;
+}
+.txtsbaolistle{
+   line-height: 40px;margin-top: 15px;
+}
+.title2{
+  font-size: 25px;
+  font-weight: bold;
+}
+.el-table .bg-green{
+  background-color: #999999;
+  color: white;
+}
+.el-table .bg-red{
+   background-color: red;
+}
