@@ -416,7 +416,7 @@
       <div class="roww center_center">
         <div>选择展会</div>
         <div style="width: 20px;"></div>
-        <el-select v-model="upload.exhId" placeholder="请选择邀请人" clearable>
+        <el-select v-model="upload.exhId" placeholder="请选择展会" clearable>
           <el-option v-for="dict in exh_listList"
           :key="dict.id" :label="dict.exhName"
             :value="dict.id" />

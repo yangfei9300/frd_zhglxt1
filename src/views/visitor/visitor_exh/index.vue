@@ -169,7 +169,7 @@
       </el-col>
 
       <el-col :span="1.5">
-        <el-button type="danger" plain  icon="el-icon-plus" size="mini"  @click="gzExportShow"
+        <el-button type="primary" plain  icon="el-icon-plus" size="mini"  @click="gzExportShow"
           v-hasPermi="['visitor:visitor_exh:remove']">观众信息导入</el-button>
       </el-col>
 
@@ -367,7 +367,7 @@
       <div class="roww center_center">
         <div>选择展会</div>
         <div style="width: 20px;"></div>
-        <el-select v-model="upload.exhId" placeholder="请选择邀请人" clearable>
+        <el-select v-model="upload.exhId" placeholder="请选择展会" clearable>
           <el-option v-for="dict in exh_listList"
           :key="dict.id" :label="dict.exhName"
             :value="dict.id" />
