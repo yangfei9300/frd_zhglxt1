@@ -82,6 +82,12 @@
         <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
           v-hasPermi="['exhibitor:exhibitor_exh:add']">新增</el-button>
       </el-col>
+
+      <el-col :span="1.5">
+        <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="alertOpenidClick"
+          >导入往届展商</el-button>
+      </el-col>
+
       <!--  <el-col :span="1.5">
         <el-button
           type="success"
@@ -399,6 +405,47 @@
 
     <!-- <zh_updateShopInfo></zh_updateShopInfo> -->
 
+
+    <!-- 用户导入对话框 -->
+    <el-dialog
+    :title="upload.title"
+    :visible.sync="upload.open"
+    width="400px"
+    append-to-body
+    >
+      <div class="roww center_center">
+        <div>选择展会</div>
+        <div style="width: 20px;"></div>
+        <el-select v-model="upload.exhId" placeholder="请选择邀请人" clearable>
+          <el-option v-for="dict in exh_listList"
+          :key="dict.id" :label="dict.exhName"
+            :value="dict.id" />
+        </el-select>
+        <div class="allline"></div>
+      </div>
+      <div style="height: 20px;"></div>
+      <el-upload ref="upload" :limit="1" accept=".xlsx, .xls" :headers="upload.headers"
+        :action="upload.url + '?updateSupport=' + upload.updateSupport+'&exhId='+upload.exhId" :disabled="upload.isUploading"
+        :on-progress="handleFileUploadProgress" :on-success="handleFileSuccess" :auto-upload="false" drag>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip text-center" slot="tip">
+          <div class="el-upload__tip" slot="tip">
+            <el-checkbox v-model="upload.updateSupport" /> 是否更新已经存在的用户数据
+          </div>
+          <span>仅允许导入xls、xlsx格式文件。</span>
+          <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;"
+            @click="importTemplate">下载模板</el-link>
+        </div>
+      </el-upload>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFileForm">确 定</el-button>
+        <el-button @click="upload.open = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+
+
   </div>
 </template>
 
@@ -448,6 +495,12 @@
   } from "@/api/exh/exh_category";
 
   import regionJson from '@/utils/region.json'
+
+
+  import { listExh_list} from "@/api/exh/exh_list";
+  import {
+    getToken
+  } from "@/utils/auth";
 
   export default {
     name: "Exhibitor_exh",
@@ -587,6 +640,41 @@
         selExhInfoList: [], //选中的展商信息
         categoryList: [], //分类列表
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // 若以版本导入
+        // 用户导入参数
+        upload: {
+          // 是否显示弹出层（用户导入）
+          open: false,
+          // 弹出层标题（用户导入）
+          title: "",
+          // 是否禁用上传
+          isUploading: false,
+          exhId:'',
+          // 是否更新已经存在的用户数据
+          updateSupport: 0,
+          // 设置上传的请求头部
+          headers: {
+            Authorization: "Bearer " + getToken()
+          },
+          // 上传的地址
+          url: process.env.VUE_APP_BASE_API + "/api/exhibitor/data/importData",
+        },
+        exh_listList:[],
+
       };
     },
     created() {
@@ -599,8 +687,61 @@
       this.exhibitorId = selExhInfo.value.id + "";
       this.getList();
       this.getShopType()
+
+      this.getExhList();
     },
     methods: {
+
+      // 获取展会列表
+      getExhList(){
+        listExh_list({
+          pageNum: 1,
+          pageSize: 10000,
+        }).then(response => {
+         var exh_listList = response.rows;
+         this.exh_listList=exh_listList;
+        });
+      },
+
+      /** 导入按钮操作 */
+      handleImport() {
+        this.upload.title = "用户导入";
+        this.upload.open = true;
+      },
+      /** 下载模板操作 */
+      importTemplate() {
+        this.download('/api/exhibitor/data/importTemplate', {}, `user_template_${new Date().getTime()}.xlsx`)
+      },
+      // 文件上传中处理
+      handleFileUploadProgress(event, file, fileList) {
+        this.upload.isUploading = true;
+      },
+      // 文件上传成功处理
+      handleFileSuccess(response, file, fileList) {
+        this.upload.open = false;
+        this.upload.isUploading = false;
+        this.$refs.upload.clearFiles();
+        this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response
+          .msg + "</div>", "导入结果", {
+            dangerouslyUseHTMLString: true
+          });
+        this.getList();
+      },
+      // 提交上传文件
+      submitFileForm() {
+        console.log("报答",this.upload)
+        if(this.upload.exhId==""){
+          this.$modal.alertError("请选择展会");
+          return false;
+        }
+        this.$refs.upload.submit();
+      },
+      alertOpenidClick(){
+       this.upload.open=!this.upload.open;
+      },
+      // ----------------------------------------------
+
+
 
       // 退展
       outZhanhui(info){
@@ -876,7 +1017,7 @@
         for(var a=0;a<selList.length;a++){
           console.log("exhibitor_exhList[a].determineRefuse",selList[a]);
           if(parseInt(selList[a].determineRefuse)>2&&parseInt(selList[a].determineRefuse)<7){
-            this.$modal.msgError("其中包含已签约展商，不可退回公海"); 
+            this.$modal.msgError("其中包含已签约展商，不可退回公海");
             return false;
           }
         }

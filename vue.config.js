@@ -37,7 +37,7 @@ module.exports = {
       [process.env.VUE_APP_BASE_API]: {
         // target: `http://localhost:9004`,
         // target: `http://192.168.0.22:9004`,
-        target: `https://6ld4218856.goho.co/`,
+        target: `https://frdzlfapi.zsyflive.com/`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''

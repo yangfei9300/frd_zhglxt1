@@ -454,9 +454,9 @@ import { listExh_type } from "@/api/exh/exh_type";
 import { listExh_gallery } from "@/api/exh/exh_gallery";
 // 展厅
 import { listExh_hall} from "@/api/exh/exh_hall";
-
 // 问卷裂帛啊
 import { listQuestionnaire } from "@/api/survey/questionnaire";
+
 
 export default {
   name: "Exh_list",
@@ -586,7 +586,6 @@ export default {
     /** 查询展会信息列表 */
     getList() {
       this.loading = true;
-
       listExh_list(this.queryParams).then(response => {
        var exh_listList = response.rows;
 
@@ -606,6 +605,9 @@ export default {
         this.loading = false;
       });
     },
+
+
+
     // 取消按钮
     cancel() {
       this.open = false;

@@ -33,7 +33,7 @@ export function grouplistvisitor_exh(data) {
     data: data
   })
 }
-// 获取邀请人列表   
+// 获取邀请人列表
 export function referrerlistvisitor_exh(data) {
   return request({
     url: '/visitor/visitor_exh/list/referrer',
@@ -57,5 +57,14 @@ export function delVisitor_exh(id) {
   return request({
     url: '/visitor/visitor_exh/' + id,
     method: 'delete'
+  })
+}
+
+
+export function visitorimportData(data) {
+  return request({
+    url: '/api/visitor/data/importData',
+    method: 'post',
+    data: data
   })
 }

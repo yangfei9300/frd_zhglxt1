@@ -13,7 +13,7 @@
         <el-input v-model="queryParams.visitorPhone" placeholder="请输入手机号" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
 
-<el-form-item label="省" prop="visitorPhone">
+      <el-form-item label="省" prop="visitorPhone">
         <el-input v-model="queryParams.visitorProvince" placeholder="请输入省" clearable
         @keyup.enter.native="handleQuery" />
       </el-form-item>
@@ -22,7 +22,7 @@
         <el-input v-model="queryParams.visitorCity"
         placeholder="请输入市" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
-      
+
       <el-form-item label="详细地址" prop="visitorAddress">
         <el-input v-model="queryParams.visitorAddress"
         placeholder="请输入详细地址" clearable @keyup.enter.native="handleQuery" />
@@ -167,6 +167,12 @@
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
           v-hasPermi="['visitor:visitor_exh:export']">导出</el-button>
       </el-col>
+
+      <el-col :span="1.5">
+        <el-button type="danger" plain  icon="el-icon-plus" size="mini"  @click="gzExportShow"
+          v-hasPermi="['visitor:visitor_exh:remove']">观众信息导入</el-button>
+      </el-col>
+
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -178,9 +184,9 @@
       <el-table-column label="手机号" align="center" prop="visitorPhone" />
        <el-table-column label="省" align="center" prop="visitorProvince" />
        <el-table-column label="市" align="center" prop="visitorCity" />
-       
+
        <el-table-column label="详细地址" align="center" prop="visitorAddress" />
-       
+
       <!-- <el-table-column label="展会ID" align="center" prop="exhId" /> -->
       <!-- <el-table-column label="观众唯一标识" align="center" prop="cardNum" /> -->
       <el-table-column label="邀请人" align="center" prop="params.referrerName" />
@@ -271,7 +277,7 @@
         <el-form-item label="所在团ID" prop="groupId">
           <el-input v-model="form.groupId" placeholder="请输入所在团ID" />
         </el-form-item>
- <el-form-item label="备注" prop="memo">
+  <el-form-item label="备注" prop="memo">
           <el-input v-model="form.memo" placeholder="请输入备注" />
         </el-form-item>
 
@@ -325,6 +331,74 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+
+
+    <!-- <el-dialog title="导入观众信息" :visible.sync="gzfileOpen" width="50%" append-to-body>
+      <el-form ref="form" :model="gzform"  label-width="130px">
+        <el-form-item label="观众表" prop="filePathIn">
+          <file-upload :fileType="fileType" v-model="gzform.gzfilePathIn" />
+        </el-form-item>
+
+        <el-form-item label="是否更新信息">
+          <el-radio-group v-model="gzform.updateSupport">
+            <el-radio v-for="dict in dict.type.zlf_status" :key="dict.value" :label="dict.value">
+            {{dict.label=='正常'?'是':'否'}}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="gzsubmitForm_file">确 定</el-button>
+        <el-button @click="gzcancel_fileopenCLick">取 消</el-button>
+      </div>
+    </el-dialog> -->
+
+
+
+
+    <!-- 用户导入对话框 -->
+    <el-dialog
+    :title="upload.title"
+    :visible.sync="upload.open"
+    width="400px"
+    append-to-body
+    >
+      <div class="roww center_center">
+        <div>选择展会</div>
+        <div style="width: 20px;"></div>
+        <el-select v-model="upload.exhId" placeholder="请选择邀请人" clearable>
+          <el-option v-for="dict in exh_listList"
+          :key="dict.id" :label="dict.exhName"
+            :value="dict.id" />
+        </el-select>
+        <div class="allline"></div>
+      </div>
+      <div style="height: 20px;"></div>
+      <el-upload ref="upload" :limit="1" accept=".xlsx, .xls" :headers="upload.headers"
+        :action="upload.url + '?updateSupport=' + upload.updateSupport+'&exhId='+upload.exhId" :disabled="upload.isUploading"
+        :on-progress="handleFileUploadProgress" :on-success="handleFileSuccess" :auto-upload="false" drag>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip text-center" slot="tip">
+          <div class="el-upload__tip" slot="tip">
+            <el-checkbox v-model="upload.updateSupport" /> 是否更新已经存在的用户数据
+          </div>
+          <span>仅允许导入xls、xlsx格式文件。</span>
+          <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;"
+            @click="importTemplate">下载模板</el-link>
+        </div>
+      </el-upload>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFileForm">确 定</el-button>
+        <el-button @click="upload.open = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+
+
+
+
   </div>
 </template>
 
@@ -336,12 +410,17 @@
     addVisitor_exh,
     updateVisitor_exh,
     grouplistvisitor_exh,
-    referrerlistvisitor_exh
+    referrerlistvisitor_exh,
+    visitorimportData
   } from "@/api/visitor/visitor_exh";
-
+  import { listExh_list} from "@/api/exh/exh_list";
+  import {
+    getToken
+  } from "@/utils/auth";
+import { Upload } from "element-ui";
   export default {
     name: "Visitor_exh",
-    dicts: ['zlf_status', 'pre_source_type', 'pre_referrer_source_type','is_arrive'],
+    dicts: ['zlf_status','industryType', 'pre_source_type', 'pre_referrer_source_type','is_arrive'],
     data() {
       return {
         // 遮罩层
@@ -395,14 +474,142 @@
         // 表单校验
         rules: {},
         grouplistvisitor_exhList:[],//团列表
-        referrerlistvisitor_exhList:[]//邀请人列表
+        referrerlistvisitor_exhList:[],//邀请人列表
+
+
+        // 观众信息导入
+          fileType: [ 'xlsx'],
+        gzfileOpen:false,
+        gzform:{
+          'gzfilePathIn':'',
+          'updateSupport':'0',
+        },
+
+
+        // 若以版本导入
+        // 用户导入参数
+        upload: {
+          // 是否显示弹出层（用户导入）
+          open: false,
+          // 弹出层标题（用户导入）
+          title: "",
+          // 是否禁用上传
+          isUploading: false,
+          exhId:'',
+          // 是否更新已经存在的用户数据
+          updateSupport: 0,
+          // 设置上传的请求头部
+          headers: {
+            Authorization: "Bearer " + getToken()
+          },
+          // 上传的地址
+          url: process.env.VUE_APP_BASE_API + "/api/visitor/data/importData",
+        },
+        exh_listList:[],//展会列表
+
       };
     },
     created() {
+
+      // var newExhInfo = this.$ls.get("selExhInfo");
+      // this.upload.exhId=newExhInfo.id;
       this.getAbout()
       this.getList();
+      this.getExhList();
     },
     methods: {
+
+      // 获取展会列表
+      getExhList(){
+        listExh_list({
+          pageNum: 1,
+          pageSize: 10000,
+        }).then(response => {
+         var exh_listList = response.rows;
+         this.exh_listList=exh_listList;
+        });
+      },
+
+      /** 导入按钮操作 */
+      handleImport() {
+        this.upload.title = "用户导入";
+        this.upload.open = true;
+      },
+      /** 下载模板操作 */
+      importTemplate() {
+        this.download('/api/visitor/data/importTemplate', {}, `user_template_${new Date().getTime()}.xlsx`)
+      },
+      // 文件上传中处理
+      handleFileUploadProgress(event, file, fileList) {
+        this.upload.isUploading = true;
+      },
+      // 文件上传成功处理
+      handleFileSuccess(response, file, fileList) {
+        this.upload.open = false;
+        this.upload.isUploading = false;
+        this.$refs.upload.clearFiles();
+        this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response
+          .msg + "</div>", "导入结果", {
+            dangerouslyUseHTMLString: true
+          });
+        this.getList();
+      },
+      // 提交上传文件
+      submitFileForm() {
+        console.log("报答",this.upload)
+        if(this.upload.exhId==""){
+          this.$modal.alertError("请选择展会");
+          return false;
+        }
+        this.$refs.upload.submit();
+      },
+      // ----------------------------------------------
+
+
+
+
+
+
+      // 自己写的导入----------
+      gzExportShow(){
+       this.upload.open=!this.upload.open;
+      },
+      // 观众信息导入确认按钮
+      gzsubmitForm_file(){
+        console.log("as",this.gzform)
+
+        var filepath = this.gzform.gzfilePathIn;
+        if (filepath == '') {
+          this.$modal.msgError("请选择展商文件");
+          return false;
+        }
+        var data =this.gzform
+        if(data.updateSupport==1){
+          data.updateSupport=false;
+        }else{
+          data.updateSupport=true;
+        }
+        this.$modal.loading("正在导入数据，请稍后...");
+        visitorimportData(data).then(response => {
+          this.$modal.closeLoading();
+          if (response.code == 200) {
+            this.$modal.msgSuccess("导入成功");
+            this.fileOpen = false;
+            setTimeout(res => {
+              this.getList();
+            }, 1000)
+          } else {
+            this.$modal.msgSuccess(res.msg);
+          }
+        }).catch(() => {
+          this.$modal.closeLoading();
+        });;
+      },
+      // 观众信息取消
+      gzcancel_fileopenCLick(){
+        this.gzfileOpen=false;
+      },
+      // -----------------自己写的导入------------------------
 
       // 获取邀请人列表
       // grouplistvisitor_exh,
