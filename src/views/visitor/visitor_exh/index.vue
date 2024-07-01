@@ -185,7 +185,19 @@
        <el-table-column label="省" align="center" prop="visitorProvince" />
        <el-table-column label="市" align="center" prop="visitorCity" />
 
-       <el-table-column label="详细地址" align="center" prop="visitorAddress" />
+       <el-table-column label="详细地址" align="center" prop="path" />
+
+
+        <el-table-column label="邀请码" align="center"
+        prop="path" width="180">
+          <template slot-scope="scope">
+            <vue-qr
+            :text='scope.row.path'
+            :size="150"></vue-qr>
+          </template>
+        </el-table-column>
+
+
 
       <!-- <el-table-column label="展会ID" align="center" prop="exhId" /> -->
       <!-- <el-table-column label="观众唯一标识" align="center" prop="cardNum" /> -->
@@ -414,12 +426,18 @@
     visitorimportData
   } from "@/api/visitor/visitor_exh";
   import { listExh_list} from "@/api/exh/exh_list";
+
+  import vueQr from 'vue-qr'
+
   import {
     getToken
   } from "@/utils/auth";
 import { Upload } from "element-ui";
   export default {
     name: "Visitor_exh",
+    components: {
+                vueQr
+            },
     dicts: ['zlf_status','industryType', 'pre_source_type', 'pre_referrer_source_type','is_arrive'],
     data() {
       return {
@@ -634,7 +652,18 @@ import { Upload } from "element-ui";
       getList() {
         this.loading = true;
         listVisitor_exh(this.queryParams).then(response => {
-          this.visitor_exhList = response.rows;
+
+          var newExhInfo = this.$ls.get("selExhInfo");
+
+          var list= response.rows;
+          for(var a=0;a<list.length;a++){
+            var url="https://frdzhtsignup.zsyflive.com?exType=" + newExhInfo.exType + "&exhId=" + newExhInfo.id+"&upUid="+list[a].visitorPhone;
+            var urlDuan=url.split("?")
+            console.log("===",urlDuan)
+            urlDuan='https://frdzhtsignup.zsyflive.com/frd/'+this.aesEncrypt(urlDuan[1])
+            list[a].path=urlDuan
+          }
+           this.visitor_exhList = list;
           this.total = response.total;
           this.loading = false;
         });
@@ -738,7 +767,22 @@ import { Upload } from "element-ui";
         this.download('visitor/visitor_exh/export', {
           ...this.queryParams
         }, `visitor_exh_${new Date().getTime()}.xlsx`)
-      }
+      },
+      //AES加密
+      aesEncrypt(encrypt) {
+      	//加密值
+      	var e = this.AES.encrypt(encrypt, '1234567891234567', '1234567891234567')
+      	// console.error("加密结果",e);
+      	return e;
+      },
+      //AES解密
+      aesDecrypt(decrypt) {
+      	// console.error("解密值",decrypt);
+      	//解密值
+      	var d = this.AES.decrypt(decrypt, '1234567891234567', '1234567891234567')
+      	// console.error("解密结果",d);
+      	return d;
+      },
     }
   };
 </script>

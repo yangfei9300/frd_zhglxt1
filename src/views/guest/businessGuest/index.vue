@@ -286,7 +286,7 @@
       <div class="roww center_center">
         <div>选择行业</div>
         <div style="width: 20px;"></div>
-        <el-select v-model="upload.industryType" placeholder="请选择行业" clearable>
+        <el-select v-model="upload.industryType" placeholder="请选择" clearable>
           <el-option v-for="dict in dict.type.industry_type" :key="dict.value" :label="dict.label" :value="dict.value"></el-option>
         </el-select>
         <div class="allline"></div>
