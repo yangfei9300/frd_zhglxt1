@@ -2,6 +2,10 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="138px">
 
+      <el-form-item label="确认码" prop="visitorName">
+        <el-input v-model="queryParams.id" placeholder="请输入确认码"
+        clearable @keyup.enter.native="handleQuery" />
+      </el-form-item>
 
       <el-form-item label="观众名称" prop="visitorName">
         <el-input v-model="queryParams.visitorName" placeholder="请输入观众名称" clearable @keyup.enter.native="handleQuery" />
@@ -26,6 +30,10 @@
       <el-form-item label="详细地址" prop="visitorAddress">
         <el-input v-model="queryParams.visitorAddress"
         placeholder="请输入详细地址" clearable @keyup.enter.native="handleQuery" />
+      </el-form-item>
+      <el-form-item label="标签1" prop="tag1">
+        <el-input v-model="queryParams.tag1"
+        placeholder="请输入标签1" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
 
 
@@ -99,10 +107,18 @@
       </el-form-item> -->
 
       <el-form-item label="邀请人" prop="preSource">
+      <!--
         <el-select v-model="queryParams.referrerId" placeholder="请选择邀请人" clearable>
-          <el-option v-for="dict in referrerlistvisitor_exhList" :key="dict.referrerId" :label="dict.params.referrerName"
+          <el-option v-for="dict in referrerlistvisitor_exhList"
+          :key="dict.referrerId" :label="dict.params.referrerName"
             :value="dict.referrerId" />
-        </el-select>
+        </el-select> -->
+        <el-input
+          v-model="queryParams.referrerId"
+          placeholder="请输入邀请人手机号"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
       </el-form-item>
       <el-form-item label="团队" prop="preSource">
         <el-select v-model="queryParams.groupId" placeholder="请选择团队" clearable>
@@ -170,7 +186,7 @@
 
       <el-col :span="1.5">
         <el-button type="primary" plain  icon="el-icon-plus" size="mini"  @click="gzExportShow"
-          v-hasPermi="['visitor:visitor_exh:remove']">观众信息导入</el-button>
+          >观众信息导入</el-button>
       </el-col>
 
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -185,7 +201,7 @@
        <el-table-column label="省" align="center" prop="visitorProvince" />
        <el-table-column label="市" align="center" prop="visitorCity" />
 
-       <el-table-column label="详细地址" align="center" prop="path" />
+       <el-table-column label="详细地址" align="center" prop="visitorAddress" />
 
 
         <el-table-column label="邀请码" align="center"
@@ -202,9 +218,11 @@
       <!-- <el-table-column label="展会ID" align="center" prop="exhId" /> -->
       <!-- <el-table-column label="观众唯一标识" align="center" prop="cardNum" /> -->
       <el-table-column label="邀请人" align="center" prop="params.referrerName" />
+      <el-table-column label="标签1" align="center" prop="tag1" />
+
       <!-- <el-table-column label="邀请来源" align="center" prop="referrerSource" /> -->
       <!-- <el-table-column label="注册方式" align="center" prop="registerType" /> -->
-      <el-table-column label="团体名称" align="center" prop="params.groupName" />
+      <!-- <el-table-column label="团体名称" align="center" prop="params.groupName" /> -->
       <!-- <el-table-column label="预登记来源" align="center" prop="preSource" /> -->
 
       <el-table-column label="预登记来源" align="center" prop="preSource">
@@ -212,6 +230,7 @@
           <dict-tag :options="dict.type.pre_source_type" :value="scope.row.preSource" />
         </template>
       </el-table-column>
+
       <el-table-column label="到场状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.is_arrive" :value="scope.row.status" />
@@ -247,7 +266,7 @@
           <dict-tag :options="dict.type.zlf_status" :value="scope.row.status"/>
         </template>
       </el-table-column> -->
-      <el-table-column label="备注" align="center" prop="memo" />
+      <!-- <el-table-column label="备注" align="center" prop="memo" /> -->
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
@@ -263,7 +282,9 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+    <pagination v-show="total>0" :total="total"
+    :page.sync="queryParams.pageNum"
+     :limit.sync="queryParams.pageSize"
       @pagination="getList" />
 
     <!-- 添加或修改观众展会关联对话框 -->
@@ -461,6 +482,7 @@ import { Upload } from "element-ui";
         open: false,
         // 查询参数
         queryParams: {
+          id:null,
           visitorAddress:null,
           visitorName: null,
           companyName: null,
@@ -657,7 +679,8 @@ import { Upload } from "element-ui";
 
           var list= response.rows;
           for(var a=0;a<list.length;a++){
-            var url="https://frdzhtsignup.zsyflive.com?exType=" + newExhInfo.exType + "&exhId=" + newExhInfo.id+"&upUid="+list[a].visitorPhone;
+            var timestamp = Date.parse(new Date());
+            var url="https://frdzhtsignup.zsyflive.com?exType=" + newExhInfo.exType + "&exhId=" + newExhInfo.id+"&upUid="+list[a].visitorPhone+"&timestamp="+timestamp;
             var urlDuan=url.split("?")
             console.log("===",urlDuan)
             urlDuan='https://frdzhtsignup.zsyflive.com/frd/'+this.aesEncrypt(urlDuan[1])

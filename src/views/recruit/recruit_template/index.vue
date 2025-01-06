@@ -11,17 +11,16 @@
           />
         </el-select>
       </el-form-item>
-     <!-- <el-form-item label="所属展会" prop="exhId">
 
-        <el-select v-model="queryParams.exhId" placeholder="请选择展会" clearable>
-          <el-option
-            v-for="dict in exhList"
-            :key="dict.id"
-            :label="dict.exhName"
-            :value="dict.id"
-          />
-        </el-select>
-      </el-form-item> -->
+      <el-form-item label="模版名称" prop="name">
+        <el-input
+          v-model="queryParams.name"
+          placeholder="请输入模版名称"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -82,6 +81,7 @@
           <dict-tag :options="dict.type.recruit_template_type" :value="scope.row.templateType"/>
         </template>
       </el-table-column>
+       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="模版文件" align="center" prop="templateFile" />
       <el-table-column label="所属展会ID" align="center" prop="params.exhName" />
       <!-- <el-table-column label="所属展会项目ID" align="center" prop="exhType" /> -->
@@ -140,10 +140,20 @@
               v-for="dict in dict.type.recruit_template_type"
               :key="dict.value"
               :label="dict.label"
-:value="dict.value"
+            :value="dict.value"
             ></el-option>
           </el-select>
         </el-form-item>
+
+        <el-form-item label="模版名称" prop="name">
+          <el-input
+            v-model="form.name"
+            placeholder="请输入模版名称"
+            clearable
+            @keyup.enter.native="handleQuery"
+          />
+        </el-form-item>
+
         <el-form-item label="模版文件">
           <file-upload v-model="form.templateFile" :fileType="fileType" />
         </el-form-item>
@@ -199,6 +209,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        name:null,
         templateType: null,
         templateFile: null,
         exhId: null,
@@ -274,6 +285,7 @@ export default {
         exhId: null,
         exhType: null,
         status: "0",
+         name:null,
         delFlag: null,
         version: null,
         createBy: null,

@@ -147,9 +147,13 @@
     </el-row>
 
     <div>
-      <div class="roww center_center" style="border: 1px solid red;min-width: 300px;padding:5px 20px;">
-        <el-select multiple  v-model="queryParams.resoonsTxt" placeholder="请选择联络结果" clearable>
-          <el-option v-for="dict in dict.type.call_reason" :key="dict.value" :label="dict.label" :value="dict.value" />
+      <div class="roww center_center"
+      style="border: 1px solid red;min-width: 300px;padding:5px 20px;">
+        <el-select multiple  v-model="queryParams.resoonsTxt"
+        placeholder="请选择联络结果" clearable>
+          <el-option v-for="dict in dict.type.call_reason"
+          :key="dict.value" :label="dict.label"
+          :value="dict.value" />
         </el-select>
         <div style="width: 20px;"></div>
         <el-col :span="1.5">
@@ -318,7 +322,7 @@
           </el-select>
         </el-form-item>
 
-  
+
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" size="mini" @click="getXtDataListQuery">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>

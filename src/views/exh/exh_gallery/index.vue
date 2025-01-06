@@ -168,7 +168,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -178,7 +178,7 @@
     />
 
     <!-- 添加或修改展馆信息对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="500px" height='80%' append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="展馆名称" prop="galleryName">
           <el-input v-model="form.galleryName" placeholder="请输入展馆名称" />

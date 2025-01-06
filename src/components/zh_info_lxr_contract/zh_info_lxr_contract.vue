@@ -688,7 +688,7 @@
 
 
 
-        <!-- <el-row style="margin-bottom: 0px;">
+        <el-row style="margin-bottom: 0px;">
           <el-col :span="24">
             <div style="line-height: 50px;color: #1890ff;">
               付款计划设置
@@ -729,10 +729,7 @@
                    </el-date-picker>
             </template>
           </el-table-column>
-        </el-table> -->
-
-
-
+        </el-table>
 
 
 
@@ -1691,8 +1688,7 @@ import { listExhibitor_info,getExhibitor_info } from "@/api/exhibitor/exhibitor_
         data.customerFax=exhibitorInfo.exhibitorFax;
         data.contentTotal=this.moneyAll; //项目总金额
 
-
-
+        console.log("提交合同号  参数",data,JSON.stringify(data))
 
         this.$modal.loading("合同提交中...");
         this.$refs["form"].validate(valid => {

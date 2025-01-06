@@ -38,12 +38,13 @@
       <el-form-item label="标签2" prop="tag2">
         <el-input v-model="queryParams.tag2" placeholder="标签2" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
- <el-form-item label="展商状态" prop="determineRefuse">
+
+<!-- <el-form-item label="展商状态" prop="determineRefuse">
         <el-select v-model="queryParams.determineRefuse" placeholder="请选择本届不参展" clearable>
           <el-option v-for="dict in dict.type.exhibitor_status" :key="dict.value" :label="dict.label"
             :value="dict.value" />
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
 
 
 
@@ -424,7 +425,8 @@
         <div class="allline"></div>
       </div>
       <div style="height: 20px;"></div>
-      <el-upload ref="upload" :limit="1" accept=".xlsx, .xls" :headers="upload.headers"
+      <el-upload ref="upload" :limit="1"
+       accept=".xlsx, .xls" :headers="upload.headers"
         :action="upload.url + '?updateSupport=' + upload.updateSupport+'&exhId='+upload.exhId" :disabled="upload.isUploading"
         :on-progress="handleFileUploadProgress" :on-success="handleFileSuccess" :auto-upload="false" drag>
         <i class="el-icon-upload"></i>
